@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
+
 char Guardar[500];
 char Guardar20[500];
 char** Palabra;
@@ -126,7 +127,7 @@ int convertir_char_to_int(char caracter)
 int main()
 {
 int estado1=0;///////////////////////////////////// cuando tiene opcional
-int pp=0,ll=0;
+int pp=0,ll=0,aa=0,gg=0;
    printf("\t\t\t Bienvenido a la FASE 1 Archivos \n");
 while(d==0){
 
@@ -143,25 +144,30 @@ while(d==0){
             int t;
             for (t = 0; *(Palabra + t); t++)
             {
+                if (aa==0) {} else {pp=2; ll=1;}
+
                 if(strncasecmp((*(Palabra + t)), "\\",1)==0)
                 {
-                    //printf("Tiene opcional \n");
+                    printf("Tiene opcional \n");
                     pp=1;
-                }else if (strncasecmp((*(Palabra + t)), "\\n",1)==1) {printf("Tiene espacio \n");
                     ll=1;
-                }
-               //printf("Entra %s\n",(*(Palabra + t)));
+                    aa=3;
 
-                if (pp==2)
+                }else if (strncasecmp((*(Palabra + t)), "\n",1)==0) {
+                printf(":D \n");
+                }else {printf(":v \n");  pp=2;  }
+
+                   //ll=1;
+               //printf("Entra %s\n",(*(Palabra + t)));
+                if (pp==2 && aa==3)
                 {
                     char *a=" ";
                     strcat(Guardar20,a);
                     strcat( Guardar20, strtok((*(Palabra+ t)),"\n"));
-
                 }
-            }
+            } //TERMINA EL FOOOOOOOOOOOOOR
 
-        }
+        }ll=1;
 
                printf("\n VectorFINAL [%s]\n",Guardar20);
 //pp=2;
@@ -184,7 +190,7 @@ if (pp==2 && ll==1) {
 
                      char *Size,*Stamanio; char *Unit,*Utipo="m";
                      char *Path,*Palacena; char *nombre;
-                     char *l; char *p; bool estado; int valuar;
+                     char *l; char *p; bool estado; int valuar=1;
 
                      printf("EntraMKdisk\n"); /////////////////////////// PRIMERA BANDERA
 
@@ -220,6 +226,14 @@ if (pp==2 && ll==1) {
                             l=strtok(Palacena,"\"");
                             printf("-Path--> %s\n",Path);
                             printf("Direccion--> %s\n",l);
+
+                            char ficher[180]= "mkdir -p '";
+                            strcat(ficher,l);
+                            strcat(ficher,"'");
+                            printf("Fichero Creado---> %s\n",ficher);
+                            system(ficher);
+
+
                             printf("----------------------------------------\n");
 
                          }else if (strncasecmp((*(Palabra2 + w)), "\\",1)==0) {
@@ -237,13 +251,15 @@ if (pp==2 && ll==1) {
                             printf("Nombre--> %s\n",p);
                             printf("----------------------------------------\n");
 
-                         }else {}
-                    }//termina FOOR DE PALABRAS
+                         }else {} //IF DE ESTADOS
+
+                    } //////////////////////////////////////////////////////////////termina FOOR DE PALABRAS
+
                     // COMIENZA POR EL ARCHIVO....
                         int espaciobinario=0;
                         char cadena[] ="\0";
                         char *o=strcat(l,p);
-                        printf("dirección-----> %s\n",o);
+                        printf("FICHERO-----> %s\n",o);
 
                         if (estado==true)
                         {
@@ -251,24 +267,41 @@ if (pp==2 && ll==1) {
                             {
                                 printf(":D  m  Megabytes\n" );
                                 espaciobinario=valuar*1024*1024; //COMANDO M 1024^2
+                                printf(" %d Megabytes\n",valuar);
+                                printf(" %d Megabytes\n",espaciobinario);
                             }
                             else if (strncasecmp(Utipo, "k",1)==0)
                             {
                                 printf(":D  k  Kilobytes\n" );
                                 espaciobinario=valuar*1024; //COMANDO K 1024
+                                printf(" %d Megabytes\n",valuar);
+                                printf(" %d Megabytes\n",espaciobinario);
                             }
                             else
                             {
                                 printf("ERROR TIPO UNIT %s\n",Utipo );
                             }
 
-                            fp = fopen ( o, "w+" );
-                            fwrite( "\0", espaciobinario, sizeof(cadena), fp );
-                            fclose ( fp );
-                        }
-                        else {printf("ERROR TAMAÑO <0 %s");}
 
-                }// fin MKDISK
+                            fp = fopen ( o, "w+b" );
+
+                            if (fp==NULL) {
+                            printf("FICHERO NO ENCONTRADO \n");
+
+
+                            }else { printf("El fichero SI existe \n" );
+
+                           fwrite( "0", espaciobinario, sizeof(cadena), fp );
+                           fclose ( fp );
+
+                                }
+
+                        }
+                        else {printf("ERROR TAMAÑO <0 %s\n");}
+                        break;
+                }  //strcpy(Guardar20," "); strcpy(Palabra2, " ");  // fin MKDISK
+                 // SALIR DEL MKDISK
+
 
                 if (strcasecmp((*(Palabra2 + z)), "rmdisk")==0){
 
@@ -282,6 +315,7 @@ if (pp==2 && ll==1) {
                             {
                                  if(strncasecmp((*(Palabra2 + y)), "-path",5)==0)
                                     {
+                                        FILE *ficheroEliminar;
                                         printf("----------------------------------------\n");
 
                                         printf("EntraPath\n");
@@ -291,20 +325,59 @@ if (pp==2 && ll==1) {
                                         l2=strtok(Palacena2,"\"");
 
                                         printf("Path2--> %s\n",Path2);
-                                        printf("Direccion2--> %s\n",l2);
+                                        printf("Fichero para ELIMINAR--> %s\n",l2);
                                         printf("----------------------------------------\n");
 
+                                        ficheroEliminar = fopen( l2, "r+b" );
+
+                                        if(ficheroEliminar!=NULL){
+
+                                        char feliminar[200];
+                                        strcat(feliminar,l2);
+
+                                        remove(feliminar); //////////////////////// ELIMINA FICHERO
+                                        printf("Fichero Eliminado->\n");
+                                        }else {printf("Fichero NO Existe->\n");}
+
                                     }
-                            }
+                            }// FOOOOOOOOOOR DE MRDISK
 
                 } //TERMINA MRdisk -----------------------------------------------------
 
+                    if (strcasecmp((*(Palabra2 + z)), "fdisk")==0)
+                    {
+
+                        int q;
+                        for (q=(z+1); *(Palabra2 + q); q++)
+                        {
+
+                            if(strncasecmp((*(Palabra2 + q)), "-size",5)==0)
+                            {
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+unit",5)==0) {
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "-path",5)==0) {
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+type",5)==0) {
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+fit",5)==0) {
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+delete",7)==0) {
+
+                            }
 
 
 
-            printf("Metodo=[%s]\n", *(Palabra2 + z));
-            }
-            }//if palabraaaa2
+                            } // TERMINA FOR FDISK
+
+
+
+
+
+
+                //printf("Metodo=[%s]\n", *(Palabra2 + z));
+             }      //FOOOOOOOOOOOOOOOOOOOR PRINCIPAL
+            }  //if palabraaaa2
 
 
 
