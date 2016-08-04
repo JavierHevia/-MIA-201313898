@@ -3,6 +3,38 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <time.h>
+/////////////// PARTICIONES /////////////////////
+typedef struct particion{
+    char part_status; //Activa o no
+    char part_type; //partición Primaria=P o extendida E
+    char part_fit; // Tipo de ajuste B=Best Fit, F=First FIt, W=worst FIT
+    unsigned int part_star; // byte de inicio de la partición
+    unsigned int part_size; //tamaño de partición
+    char part_name[16];// ID de particion
+}particion;
+//////////////// PARTICIONES ///////////////////
+
+//////////////// MBR////////////////////////////
+typedef struct MasterBootRecord{
+    unsigned int mbr_tamanio;
+    time_t mbr_fecha_creacion;
+    int mbr_disk_signature;
+    particion mbr_particion_[3];
+}MasterBootRecord;
+
+///////////////////////////////////////////////
+
+////////////////EBR////////////////////////////
+typedef struct ExtendedBootRecord{
+    char part_status;
+    char part_fit;
+    unsigned int part_start;
+    unsigned int part_size;
+    unsigned int part_next;
+    char part_name [16];
+}ExtendedBootRecord;
+///////////////////////////////////////////////
 
 
 char Guardar[500];
@@ -129,16 +161,20 @@ int main()
 int estado1=0;///////////////////////////////////// cuando tiene opcional
 int pp=0,ll=0,aa=0,gg=0;
    printf("\t\t\t Bienvenido a la FASE 1 Archivos \n");
+
+
+
+
 while(d==0){
 
 
    printf("Ingrese los comandos que quiera ejecutar\n");
     //printf("Hello world! \n");
         fgets(Guardar,300,stdin);
-
+        strcpy(Guardar,"mkdisk -size::3 -name::\"kaka.dsk\" -path::\"/home/javier/ejemplo4/\" ");
         if (pp==0){strcpy(Guardar20, strtok(Guardar,"\n"));} //separa el \n
         Palabra = str_split(Guardar,' ');
-
+        //Palabra="mkdisk -size::3 -name::\"kaka.dsk\" -path::\"/home/javier/ejemplo4/\" ";
         if (Palabra)
         {
             int t;
@@ -190,7 +226,7 @@ if (pp==2 && ll==1) {
 
                      char *Size,*Stamanio; char *Unit,*Utipo="m";
                      char *Path,*Palacena; char *nombre;
-                     char *l; char *p; bool estado; int valuar=1;
+                     char *l; char *p; bool estado; unsigned int valuar=1;
 
                      printf("EntraMKdisk\n"); /////////////////////////// PRIMERA BANDERA
 
@@ -202,18 +238,22 @@ if (pp==2 && ll==1) {
                             printf("EntraSize\n");
                             Size=strtok(*(Palabra2 + w),"::");
                             Stamanio=strtok(NULL,"::");
+                            strcat(Stamanio,"\0");
                             //printf("NUMERO Size%d \n",valuar);
                             valuar =(int) *Stamanio -48;// convertir char* a int
-                            if (valuar>=0) {printf("tamaño-Correcto\n"); estado=true;} else {printf("tamaño-Incorrecto <0\n");}
+                            if (valuar>0) {printf("tamaño-Correcto\n"); estado=true;} else {printf("tamaño-Incorrecto <0\n");}
                             printf("-> %s\n",Size);
                             printf("Tamaño--> %s\n",Stamanio);
+                           //valuar=(int)Stamanio;
                             printf("----------------------------------------\n");
 
                          }else if (strncasecmp((*(Palabra2+ w)), "+unit",5)==0) {
                             printf("----------------------------------------\n");
                             printf("EntraUnit\n");
                             Unit=strtok(*(Palabra2 + w),"::");
+
                             Utipo=strtok(NULL,"::");
+                            strcat(Unit,"\0");
                             printf("--> %s\n",Unit);
                             printf("Unidad--> %s\n",Utipo);
                             printf("----------------------------------------\n");
@@ -224,8 +264,10 @@ if (pp==2 && ll==1) {
                             Path=strtok(*(Palabra2 + w),"::");
                             Palacena=strtok(NULL,"::");
                             l=strtok(Palacena,"\"");
+
                             printf("-Path--> %s\n",Path);
                             printf("Direccion--> %s\n",l);
+                            strcat(l,"\0");
 
                             char ficher[180]= "mkdir -p '";
                             strcat(ficher,l);
@@ -247,6 +289,7 @@ if (pp==2 && ll==1) {
                             char *th=strtok(*(Palabra2 + w),"::");
                             nombre=strtok(NULL,"::");
                             p=strtok(nombre,"\"");
+                            strcat(p,"\0");
                             printf("--> %s\n",th);
                             printf("Nombre--> %s\n",p);
                             printf("----------------------------------------\n");
@@ -256,9 +299,9 @@ if (pp==2 && ll==1) {
                     } //////////////////////////////////////////////////////////////termina FOOR DE PALABRAS
 
                     // COMIENZA POR EL ARCHIVO....
-                        int espaciobinario=0;
-                        char cadena[] ="\0";
-                        char *o=strcat(l,p);
+                        unsigned int espaciobinario=0;
+
+                        char *o=strcat(l,p);  strcat(o,"\0");
                         printf("FICHERO-----> %s\n",o);
 
                         if (estado==true)
@@ -282,7 +325,6 @@ if (pp==2 && ll==1) {
                                 printf("ERROR TIPO UNIT %s\n",Utipo );
                             }
 
-
                             fp = fopen ( o, "w+b" );
 
                             if (fp==NULL) {
@@ -291,14 +333,51 @@ if (pp==2 && ll==1) {
 
                             }else { printf("El fichero SI existe \n" );
 
-                           fwrite( "0", espaciobinario, sizeof(cadena), fp );
-                           fclose ( fp );
+                      /////////////////////////////////////////////////////////
+                            time_t ahora;
+                            struct tm *fecha;
+                            time(&ahora);
+                            fecha = localtime(&ahora);
+                            int signature=rand() % 1+ 100;
+/////////////////////////////////////////////////////////////////ESCRIBIR EL MBR///////////////////////////////////////////////
+                       MasterBootRecord  mbr; //LLAMADO DE STRUCK
+                        mbr.mbr_tamanio=espaciobinario;
+                        mbr.mbr_fecha_creacion= time(NULL);
+                        mbr.mbr_disk_signature=signature;
+
+
+                                char tamaArchivo[espaciobinario]; char filee[espaciobinario];
+                                memset(filee, 0, sizeof tamaArchivo);
+
+                                fwrite(filee,sizeof(filee),1,fp);
+
+                                fseek(fp,0,SEEK_SET);
+                                fwrite(&mbr,sizeof(MasterBootRecord),1,fp);
+                                fclose(fp);
+
+                                fp=fopen(o,"r+");
+                                MasterBootRecord temporal;
+                                fread(&temporal,sizeof(MasterBootRecord),1,fp);
+
+                               // printf("%d,%d",temporal.mbr_disk_signature,temporal.mbr_tamanio);
+                                fclose(fp);
+
+                        //METIENOD DATOS EN LAS OTRAS PARTICIONES.....
+                                for (int d=0;d<3;d++) {
+                                    mbr.mbr_particion_[d].part_status=NULL;
+                                    mbr.mbr_particion_[d].part_type=NULL;
+                                    mbr.mbr_particion_[d].part_fit=NULL;
+                                    mbr.mbr_particion_[d].part_star=0;
+                                    mbr.mbr_particion_[d].part_size=0;
 
                                 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                }
+
                         }
-                        else {printf("ERROR TAMAÑO <0 %s\n");}
-                        break;
+                        else {printf("ERROR TAMAÑO <0 \n");}
+                        pp=0; break;
                 }  //strcpy(Guardar20," "); strcpy(Palabra2, " ");  // fin MKDISK
                  // SALIR DEL MKDISK
 
@@ -313,6 +392,7 @@ if (pp==2 && ll==1) {
                          int y;
                         for (y=(z+1); *(Palabra2 + y); y++)
                             {
+
                                  if(strncasecmp((*(Palabra2 + y)), "-path",5)==0)
                                     {
                                         FILE *ficheroEliminar;
@@ -323,7 +403,7 @@ if (pp==2 && ll==1) {
                                         Path2=strtok(*(Palabra2 + y),"::");
                                         Palacena2=strtok(NULL,"::");
                                         l2=strtok(Palacena2,"\"");
-
+                                        strcat(l2,"\0");
                                         printf("Path2--> %s\n",Path2);
                                         printf("Fichero para ELIMINAR--> %s\n",l2);
                                         printf("----------------------------------------\n");
@@ -334,6 +414,7 @@ if (pp==2 && ll==1) {
 
                                         char feliminar[200];
                                         strcat(feliminar,l2);
+                                        strcat(feliminar,"\0");
 
                                         remove(feliminar); //////////////////////// ELIMINA FICHERO
                                         printf("Fichero Eliminado->\n");
@@ -342,10 +423,14 @@ if (pp==2 && ll==1) {
                                     }
                             }// FOOOOOOOOOOR DE MRDISK
 
-                } //TERMINA MRdisk -----------------------------------------------------
+                } break; //TERMINA MRdisk -----------------------------------------------------
 
                     if (strcasecmp((*(Palabra2 + z)), "fdisk")==0)
-                    {
+                    {printf("EntraFdisk\n");
+                        char *Size,*Stamanio; char *Unit,*Utipo="k";
+                        char *path,*dPath; char *type, *dtype="p";
+                        char *fit,*dfit="wf"; char *dele, *deleminar;
+                        char *name,*dname; char *add, *dadd; bool estado; char *l2; int EstadDELETE=0; int EstadoUNIT=0;
 
                         int q;
                         for (q=(z+1); *(Palabra2 + q); q++)
@@ -353,16 +438,92 @@ if (pp==2 && ll==1) {
 
                             if(strncasecmp((*(Palabra2 + q)), "-size",5)==0)
                             {
+                              printf("----------------------------------------\n");
+                              printf("EntraSize\n");
+
+                              Size=strtok(*(Palabra2 + q),"::");
+                              Stamanio=strtok(NULL,"::");
+                              strcat(Stamanio,"\0");
+                              unsigned int TamanioSize =(int) *Stamanio -48;// convertir char* a int
+                              if (TamanioSize>0) {printf("tamaño-Correcto\n"); estado=true;} else {printf("tamaño-Incorrecto <0\n");}
+                              printf("--> %s\n",Size);
+                              printf("Tamaño--> %s\n",Stamanio);
+                              printf("Tamaño real--> %d\n",TamanioSize);
+
+                              printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+unit",5)==0) {
+                              printf("----------------------------------------\n");
+                              printf("EntraUnit\n");
+                              Unit=strtok(*(Palabra2 + q),"::");
+                              Utipo=strtok(NULL,"::");
+                              strcat(Utipo,"\0");
+                              printf("--> %s\n",Unit);
+                              printf("Tipo de Unidad--> %s\n",Utipo);
+                              printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "-path",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraPath\n");
+
+                                path=strtok(*(Palabra2 + q),"::");
+                                dPath=strtok(NULL,"::");
+                                l2=strtok(dPath,"\"");
+                                strcat(l2,"\0");
+                                printf("--> %s\n",path);
+                                printf("Fichero --> %s\n",l2);
+                                printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+type",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraType\n");
+
+                                type=strtok(*(Palabra2 + q),"::");
+                                dtype=strtok(NULL,"::");
+                                strcat(dtype,"\0");
+                                printf("--> %s\n",type);
+                                printf("Tipo Type --> %s\n",dtype);
+                                printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+fit",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraFit\n");
 
-                            }else if (strncasecmp((*(Palabra2 + q)), "+delete",7)==0) {
+                                fit=strtok(*(Palabra2 + q),"::");
+                                dfit=strtok(NULL,"::");
+                                strcat(dfit,"\0");
+                                printf("--> %s\n",fit);
+                                printf("Tipo Fit --> %s\n",dfit);
+                                printf("----------------------------------------\n");
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+delete",7)==0){
+                                printf("----------------------------------------\n");
+                                printf("EntraDelete\n"); EstadDELETE=1;
+
+                                dele=strtok(*(Palabra2 + q),"::");
+                                deleminar=strtok(NULL,"::");
+                                strcat(deleminar,"\0");
+                                printf("--> %s\n",dele);
+                                printf("Tipo Delete --> %s\n",deleminar);
+                                printf("----------------------------------------\n");
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "-name",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraName\n");
+
+                                name=strtok(*(Palabra2 + q),"::");
+                                dname=strtok(NULL,"::");
+                                l2=strtok(dname,"\"");
+                                strcat(l2,"\0");
+                                printf("--> %s\n",name);
+                                printf("Nombre--> %s\n",dname);
+
+                                printf("----------------------------------------\n");
+
+                            }else if (strncasecmp((*(Palabra2 + q)), "+add",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraAdd\n");
+                                printf("----------------------------------------\n");
 
                             }
 
@@ -371,11 +532,7 @@ if (pp==2 && ll==1) {
                             } // TERMINA FOR FDISK
 
 
-
-
-
-
-                //printf("Metodo=[%s]\n", *(Palabra2 + z));
+                    }   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
              }      //FOOOOOOOOOOOOOOOOOOOR PRINCIPAL
             }  //if palabraaaa2
 
@@ -383,8 +540,7 @@ if (pp==2 && ll==1) {
 
         } // ESTADO 2 IF
 
-  pp=2;
-
+          pp=2;
 
     } // del whileeee
 
