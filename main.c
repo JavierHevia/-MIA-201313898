@@ -37,10 +37,11 @@ typedef struct ExtendedBootRecord{
 ///////////////////////////////////////////////
 
 
-char Guardar[500];
-char Guardar20[500];
+char Guarda[500];
+char Guardar2[500];
 char** Palabra;
 char** Palabra2;
+unsigned int TAMANIOREAL=0;
 
 int d=0;
 FILE *fp;
@@ -95,7 +96,6 @@ char** str_split(char* a_str, const char a_delim)
 }
 
 
-
 //EJEMPLO TOMADO DE http://stackoverflow.com/questions/9210528/split-string-with-delimiters-in-c
 char** str_split2(char* a_str2, const char a_delim2)
 {
@@ -146,7 +146,6 @@ char** str_split2(char* a_str2, const char a_delim2)
 }
 
 
-
 int convertir_char_to_int(char caracter)
 {
  int auxiliar =0;
@@ -163,17 +162,18 @@ int pp=0,ll=0,aa=0,gg=0;
    printf("\t\t\t Bienvenido a la FASE 1 Archivos \n");
 
 
-
-
 while(d==0){
-
 
    printf("Ingrese los comandos que quiera ejecutar\n");
     //printf("Hello world! \n");
-        fgets(Guardar,300,stdin);
-        strcpy(Guardar,"mkdisk -size::3 -name::\"kaka.dsk\" -path::\"/home/javier/ejemplo4/\" ");
-        if (pp==0){strcpy(Guardar20, strtok(Guardar,"\n"));} //separa el \n
-        Palabra = str_split(Guardar,' ');
+        fgets(Guarda,350,stdin);
+
+
+//        strcpy(Guardar,"fdisk -size::3 -name::\"Particion2\" -path::\"/home/javier/ejemplo4/Disco2.dsk\" ");
+        strcpy(Guarda,"mkdisk -size::3 -name::\"hola.dsk\" -path::\"/home/javier/ejemplo4/\" ");
+
+        if (pp==0){strcpy(Guardar2, strtok(Guarda,"\n"));} //separa el \n
+        Palabra = str_split(Guarda,' ');
         //Palabra="mkdisk -size::3 -name::\"kaka.dsk\" -path::\"/home/javier/ejemplo4/\" ";
         if (Palabra)
         {
@@ -198,20 +198,20 @@ while(d==0){
                 if (pp==2 && aa==3)
                 {
                     char *a=" ";
-                    strcat(Guardar20,a);
-                    strcat( Guardar20, strtok((*(Palabra+ t)),"\n"));
+                    strcat(Guardar2,a);
+                    strcat( Guardar2, strtok((*(Palabra+ t)),"\n"));
                 }
             } //TERMINA EL FOOOOOOOOOOOOOR
 
         }ll=1;
 
-               printf("\n VectorFINAL [%s]\n",Guardar20);
+               printf("\n VectorFINAL [%s]\n",Guardar2);
 //pp=2;
 
 /////////////////////////////////////////////////////////COMIENZA LA LEIDA DE ARCHIVO
 
 if (pp==2 && ll==1) {
-        Palabra2 = str_split2(Guardar20,' ');
+        Palabra2 = str_split2(Guardar2,' ');
 
         if (Palabra2)
         {
@@ -228,7 +228,7 @@ if (pp==2 && ll==1) {
                      char *Path,*Palacena; char *nombre;
                      char *l; char *p; bool estado; unsigned int valuar=1;
 
-                     printf("EntraMKdisk\n"); /////////////////////////// PRIMERA BANDERA
+                     printf("--------------Entra MKdisk--------------\n"); /////////////////////////// PRIMERA BANDERA
 
                     int w;
                     for (w=(z+1); *(Palabra2 + w); w++)
@@ -304,8 +304,7 @@ if (pp==2 && ll==1) {
                         char *o=strcat(l,p);  strcat(o,"\0");
                         printf("FICHERO-----> %s\n",o);
 
-                        if (estado==true)
-                        {
+                        if (estado==true){
                             if (strncasecmp(Utipo, "m",1)==0)
                             {
                                 printf(":D  m  Megabytes\n" );
@@ -323,6 +322,7 @@ if (pp==2 && ll==1) {
                             else
                             {
                                 printf("ERROR TIPO UNIT %s\n",Utipo );
+                                break;
                             }
 
                             fp = fopen ( o, "w+b" );
@@ -359,7 +359,7 @@ if (pp==2 && ll==1) {
                                 MasterBootRecord temporal;
                                 fread(&temporal,sizeof(MasterBootRecord),1,fp);
 
-                               // printf("%d,%d",temporal.mbr_disk_signature,temporal.mbr_tamanio);
+                                printf("signature %d , tamanio %d\n",temporal.mbr_disk_signature,temporal.mbr_tamanio);
                                 fclose(fp);
 
                         //METIENOD DATOS EN LAS OTRAS PARTICIONES.....
@@ -369,7 +369,6 @@ if (pp==2 && ll==1) {
                                     mbr.mbr_particion_[d].part_fit=NULL;
                                     mbr.mbr_particion_[d].part_star=0;
                                     mbr.mbr_particion_[d].part_size=0;
-
                                 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +386,7 @@ if (pp==2 && ll==1) {
                         char *Path2,*Palacena2;
                         char *l2;
                         char *p;
-                        printf("EntraMRdisk\n");
+                        printf("--------------Entra MRdisk--------------\n");
 
                          int y;
                         for (y=(z+1); *(Palabra2 + y); y++)
@@ -422,15 +421,17 @@ if (pp==2 && ll==1) {
 
                                     }
                             }// FOOOOOOOOOOR DE MRDISK
-
-                } break; //TERMINA MRdisk -----------------------------------------------------
+                            break;
+                }  //TERMINA MRdisk -----------------------------------------------------
 
                     if (strcasecmp((*(Palabra2 + z)), "fdisk")==0)
-                    {printf("EntraFdisk\n");
+                    {printf("--------------Entra Fdisk--------------\n");
                         char *Size,*Stamanio; char *Unit,*Utipo="k";
                         char *path,*dPath; char *type, *dtype="p";
                         char *fit,*dfit="wf"; char *dele, *deleminar;
-                        char *name,*dname; char *add, *dadd; bool estado; char *l2; int EstadDELETE=0; int EstadoUNIT=0;
+                        char *name,*dname; char *add, *dadd; bool estado; char *l2,*nm; int EstadDELETE=0; int EstadoUNIT=0;
+                        int tamanioBytes; int EstadoAdd=0; unsigned int TamanioSize=1;
+                        unsigned int TAMANIOREAL;
 
                         int q;
                         for (q=(z+1); *(Palabra2 + q); q++)
@@ -444,7 +445,7 @@ if (pp==2 && ll==1) {
                               Size=strtok(*(Palabra2 + q),"::");
                               Stamanio=strtok(NULL,"::");
                               strcat(Stamanio,"\0");
-                              unsigned int TamanioSize =(int) *Stamanio -48;// convertir char* a int
+                              TamanioSize =(int) *Stamanio -48;// convertir char* a int
                               if (TamanioSize>0) {printf("tamaño-Correcto\n"); estado=true;} else {printf("tamaño-Incorrecto <0\n");}
                               printf("--> %s\n",Size);
                               printf("Tamaño--> %s\n",Stamanio);
@@ -454,12 +455,13 @@ if (pp==2 && ll==1) {
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+unit",5)==0) {
                               printf("----------------------------------------\n");
-                              printf("EntraUnit\n");
+                              printf("EntraUnit\n"); EstadoUNIT=1;
                               Unit=strtok(*(Palabra2 + q),"::");
                               Utipo=strtok(NULL,"::");
                               strcat(Utipo,"\0");
                               printf("--> %s\n",Unit);
                               printf("Tipo de Unidad--> %s\n",Utipo);
+
                               printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "-path",5)==0) {
@@ -513,26 +515,113 @@ if (pp==2 && ll==1) {
 
                                 name=strtok(*(Palabra2 + q),"::");
                                 dname=strtok(NULL,"::");
-                                l2=strtok(dname,"\"");
-                                strcat(l2,"\0");
+                                nm=strtok(dname,"\"");
+                                strcat(nm,"\0");
                                 printf("--> %s\n",name);
-                                printf("Nombre--> %s\n",dname);
+                                printf("Nombre--> %s\n",nm);
 
                                 printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+add",5)==0) {
                                 printf("----------------------------------------\n");
-                                printf("EntraAdd\n");
+                                EstadoAdd=1; printf("EntraAdd\n");
+                                add=strtok(*(Palabra2 + q),"::");
+                                dadd=strtok(NULL,"::");
+                                strcat(dadd,"\0");
+                                unsigned int Tamanioadd =(int) *dadd -48;// convertir char* a int
+                                printf("--> %s\n",add);
+                                printf("#--> %s\n",dadd);
                                 printf("----------------------------------------\n");
 
                             }
 
-
-
                             } // TERMINA FOR FDISK
 
+                            if (estado==true){
+                                if (strncasecmp(Utipo, "m",1)==0)
+                                {
+                                    printf(":D  m  Megabytes\n" );
+                                     tamanioBytes=TamanioSize*1024*1024; //COMANDO M 1024^2
+                                    printf(" %d size\n",TamanioSize);
+                                    printf(" %d Megabytes\n",tamanioBytes);
+                                }else if (strncasecmp(Utipo, "b",1)==0) {
+                                    printf(":D  b Bytes\n" );
+                                    tamanioBytes=TamanioSize; //COMANDO M 1024^2
+                                    printf(" %d size\n",TamanioSize);
+                                    printf(" %d Bytes\n",tamanioBytes);
+                                }else if (strncasecmp(Utipo, "k",1)==0){
+                                    printf(":D  b kiloBytes\n" );
+                                    tamanioBytes=TamanioSize*1024; //COMANDO M 1024^2
+                                    printf(" %d size\n",TamanioSize);
+                                    printf(" %d kiloBytes\n",tamanioBytes);
 
-                    }   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
+                                }else{printf("D: Error en Unit diferente\n" );}
+
+                                 if (EstadDELETE==0 && EstadoAdd==0 ) {
+                       //////////////////////////// LEER EL ARCHIVO PARA LEER EL MBR /////////////////////////////////////
+                                char *FICFDISK=strcat(l2,nm);  strcat(FICFDISK,"\0");
+                                MasterBootRecord LEER;
+                                FILE *fp=fopen(FICFDISK,"r+");
+                                MasterBootRecord fdiskkk; // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
+                                fread(&LEER,sizeof(MasterBootRecord),1,fp);
+
+                                printf("Signature %d , Tamaño Total Del disco %d\n",fdiskkk.mbr_disk_signature,fdiskkk.mbr_tamanio);//DATOS DEL MBR
+                                fclose(fp);
+
+                                TAMANIOREAL=fdiskkk.mbr_tamanio - sizeof(MasterBootRecord); // ESPACIO YA DISPONIBLE
+                                int size=sizeof(MasterBootRecord)+1;
+                                int start;
+
+                                MasterBootRecord verificar;
+
+                                if (TAMANIOREAL<=tamanioBytes) {
+                                for (int p=0;p<3;p++) {
+                                    printf("Buscando particiones... \n");
+
+
+                                        if (verificar.mbr_particion_[p].part_size==0){
+
+                                               strcpy(verificar.mbr_particion_[p].part_status,"Activa");
+                                               strncpy(verificar.mbr_particion_[p].part_type,dtype,sizeof(dtype));
+                                               strncpy(verificar.mbr_particion_[p].part_fit,dfit,sizeof(dfit));
+                                               strcpy(verificar.mbr_particion_[p].part_star,tamanioBytes);
+                                               strcpy(verificar.mbr_particion_[p].part_size,tamanioBytes);
+                                               strncpy(verificar.mbr_particion_[p].part_name,nm,sizeof(nm));
+
+                                        }
+                                    }
+
+                                }else{printf("No hay espacio disponible en el disco -.- Adios -.-\n");}
+
+                       ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+                                 }else {printf("Otra opción \n");}
+
+
+
+                            if (EstadDELETE==1){
+
+                                char confirmacion[3];
+                                char *fichero=strcat(dPath,dname);  strcat(fichero,"\0");
+                                printf("Partición a eliminar....%s",fichero);
+                                printf("\n --Desea elimnar la partición-- (SI-NO) \n");
+                                fgets(confirmacion,3,stdin);
+
+
+                            }
+
+                            if (EstadoAdd==1) {
+                                char *fichero=strcat(dPath,dname);  strcat(fichero,"\0");
+                                printf("Partición para agregar....%s",fichero); int UnidadesAdd=tamanioBytes;
+
+                            }
+
+                        }// IF DEL ESTADO PRINCIPAL DEL ESTADO
+                            else {printf("El SIZE es menor a 0");}
+
+
+                    }break;pp=0;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
              }      //FOOOOOOOOOOOOOOOOOOOR PRINCIPAL
             }  //if palabraaaa2
 
@@ -547,3 +636,4 @@ if (pp==2 && ll==1) {
 
     return 0;
 }
+
