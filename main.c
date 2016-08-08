@@ -20,7 +20,7 @@ typedef struct MasterBootRecord{
     unsigned int mbr_tamanio;
     time_t mbr_fecha_creacion;
     int mbr_disk_signature;
-    particion mbr_particion_[3];
+    particion mbr_particion_[4];
 }MasterBootRecord;
 
 ///////////////////////////////////////////////
@@ -39,10 +39,15 @@ typedef struct ExtendedBootRecord{
 
 char Guarda[500];
 char Guardar2[500];
+char j[200];
 char** Palabra;
 char** Palabra2;
-unsigned int TAMANIOREAL=0;
 
+//VARIABLES PARA PARTICIONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES
+unsigned int TAMANIOREAL=0;
+///////////////////////////////////////////////////////////
+int particionesPrimarias=0; int particionesextendidas=0; int ParticionesLibres=0;
+///////////////////////////////////////////////////////////
 int d=0;
 FILE *fp;
 
@@ -169,12 +174,12 @@ while(d==0){
         fgets(Guarda,350,stdin);
 
 
-//        strcpy(Guardar,"fdisk -size::3 -name::\"Particion2\" -path::\"/home/javier/ejemplo4/Disco2.dsk\" ");
-        strcpy(Guarda,"mkdisk -size::3 -name::\"hola.dsk\" -path::\"/home/javier/ejemplo4/\" ");
+        strcpy(Guarda,"fdisk -size::1 -name::\"prueba1\" -path::\"/home/javier/Documentos/prueba/prueba1.dsk\"");
+//      strcpy(Guarda,"mkdisk -size::3 -name::\"prueba1.dsk\" -path::\"/home/javier/Documentos/prueba/\"");
 
         if (pp==0){strcpy(Guardar2, strtok(Guarda,"\n"));} //separa el \n
         Palabra = str_split(Guarda,' ');
-        //Palabra="mkdisk -size::3 -name::\"kaka.dsk\" -path::\"/home/javier/ejemplo4/\" ";
+
         if (Palabra)
         {
             int t;
@@ -264,10 +269,11 @@ if (pp==2 && ll==1) {
                             Path=strtok(*(Palabra2 + w),"::");
                             Palacena=strtok(NULL,"::");
                             l=strtok(Palacena,"\"");
-
+                            strcat(Palacena,"\0");
+                            strcat(l,"\0");
                             printf("-Path--> %s\n",Path);
                             printf("Direccion--> %s\n",l);
-                            strcat(l,"\0");
+
 
                             char ficher[180]= "mkdir -p '";
                             strcat(ficher,l);
@@ -301,8 +307,8 @@ if (pp==2 && ll==1) {
                     // COMIENZA POR EL ARCHIVO....
                         unsigned int espaciobinario=0;
 
-                        char *o=strcat(l,p);  strcat(o,"\0");
-                        printf("FICHERO-----> %s\n",o);
+                        strcat(l,p);  strncat(l,"\0",sizeof("\0"));
+                        printf("FICHERO-----> %s\n",l);
 
                         if (estado==true){
                             if (strncasecmp(Utipo, "m",1)==0)
@@ -324,8 +330,8 @@ if (pp==2 && ll==1) {
                                 printf("ERROR TIPO UNIT %s\n",Utipo );
                                 break;
                             }
-
-                            fp = fopen ( o, "w+b" );
+                             strcpy(j,l);  strcat(j,"\0");// LIMPIAR ERRORESSSSS
+                            fp = fopen ( j, "w+b" );
 
                             if (fp==NULL) {
                             printf("FICHERO NO ENCONTRADO \n");
@@ -338,12 +344,23 @@ if (pp==2 && ll==1) {
                             struct tm *fecha;
                             time(&ahora);
                             fecha = localtime(&ahora);
-                            int signature=rand() % 1+ 100;
+                            srand (time(NULL));
+                            int signature=rand() % 100;
 /////////////////////////////////////////////////////////////////ESCRIBIR EL MBR///////////////////////////////////////////////
                        MasterBootRecord  mbr; //LLAMADO DE STRUCK
                         mbr.mbr_tamanio=espaciobinario;
                         mbr.mbr_fecha_creacion= time(NULL);
                         mbr.mbr_disk_signature=signature;
+
+                        // METIENDO DATOS EN LAS OTRAS PARTICIONES.....
+                                 for (int d=0;d<=3;d++) {
+                                     mbr.mbr_particion_[d].part_status='\0';
+                                     mbr.mbr_particion_[d].part_type='\0';
+                                     mbr.mbr_particion_[d].part_fit='\0';
+                                     mbr.mbr_particion_[d].part_star=0;
+                                     mbr.mbr_particion_[d].part_size=0;
+                                     for(int x=0;x<15;x++){mbr.mbr_particion_[d].part_name[x]="\0";}
+                                 }
 
 
                                 char tamaArchivo[espaciobinario]; char filee[espaciobinario];
@@ -355,21 +372,14 @@ if (pp==2 && ll==1) {
                                 fwrite(&mbr,sizeof(MasterBootRecord),1,fp);
                                 fclose(fp);
 
-                                fp=fopen(o,"r+");
+                                fp=fopen(j,"r+");
                                 MasterBootRecord temporal;
                                 fread(&temporal,sizeof(MasterBootRecord),1,fp);
 
                                 printf("signature %d , tamanio %d\n",temporal.mbr_disk_signature,temporal.mbr_tamanio);
                                 fclose(fp);
 
-                        //METIENOD DATOS EN LAS OTRAS PARTICIONES.....
-                                for (int d=0;d<3;d++) {
-                                    mbr.mbr_particion_[d].part_status=NULL;
-                                    mbr.mbr_particion_[d].part_type=NULL;
-                                    mbr.mbr_particion_[d].part_fit=NULL;
-                                    mbr.mbr_particion_[d].part_star=0;
-                                    mbr.mbr_particion_[d].part_size=0;
-                                }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                 }
@@ -415,7 +425,7 @@ if (pp==2 && ll==1) {
                                         strcat(feliminar,l2);
                                         strcat(feliminar,"\0");
 
-                                        remove(feliminar); //////////////////////// ELIMINA FICHERO
+                                        remove(feliminar); //////////////////////// ELIMINA FICHERO/////////////////////////
                                         printf("Fichero Eliminado->\n");
                                         }else {printf("Fichero NO Existe->\n");}
 
@@ -430,8 +440,9 @@ if (pp==2 && ll==1) {
                         char *path,*dPath; char *type, *dtype="p";
                         char *fit,*dfit="wf"; char *dele, *deleminar;
                         char *name,*dname; char *add, *dadd; bool estado; char *l2,*nm; int EstadDELETE=0; int EstadoUNIT=0;
-                        int tamanioBytes; int EstadoAdd=0; unsigned int TamanioSize=1;
-                        unsigned int TAMANIOREAL;
+                        unsigned int tamanioBytes; int EstadoAdd=0; unsigned int TamanioSize=1; int estadosiexiste=0;
+                        unsigned int TAMANIOREAL; int estadotype=0;
+
 
                         int q;
                         for (q=(z+1); *(Palabra2 + q); q++)
@@ -473,7 +484,11 @@ if (pp==2 && ll==1) {
                                 l2=strtok(dPath,"\"");
                                 strcat(l2,"\0");
                                 printf("--> %s\n",path);
+
+                                FILE *verificar = fopen(l2,"r+");
+                                if (verificar==NULL){printf("Fichero no existe");}else{estadosiexiste=1;}
                                 printf("Fichero --> %s\n",l2);
+
                                 printf("----------------------------------------\n");
 
                             }else if (strncasecmp((*(Palabra2 + q)), "+type",5)==0) {
@@ -516,6 +531,7 @@ if (pp==2 && ll==1) {
                                 name=strtok(*(Palabra2 + q),"::");
                                 dname=strtok(NULL,"::");
                                 nm=strtok(dname,"\"");
+
                                 strcat(nm,"\0");
                                 printf("--> %s\n",name);
                                 printf("Nombre--> %s\n",nm);
@@ -537,7 +553,13 @@ if (pp==2 && ll==1) {
 
                             } // TERMINA FOR FDISK
 
-                            if (estado==true){
+                        if(strncasecmp(dtype, "e",1)==0){strcpy(dtype,"e"); estadotype=1;
+                        }else if (strncasecmp(dtype, "l",1)==0){strcpy(dtype,"l"); estadotype=1;
+                        }else if(strncasecmp(dtype, "p",1)==0){ estadotype=1;
+
+                        }else {printf("Error en Type\n");}
+
+                            if (estado==true && estadosiexiste==1 && estadotype==1){
                                 if (strncasecmp(Utipo, "m",1)==0)
                                 {
                                     printf(":D  m  Megabytes\n" );
@@ -558,42 +580,91 @@ if (pp==2 && ll==1) {
                                 }else{printf("D: Error en Unit diferente\n" );}
 
                                  if (EstadDELETE==0 && EstadoAdd==0 ) {
-                       //////////////////////////// LEER EL ARCHIVO PARA LEER EL MBR /////////////////////////////////////
-                                char *FICFDISK=strcat(l2,nm);  strcat(FICFDISK,"\0");
+               //////////////////////////////// LEER EL ARCHIVO PARA LEER EL MBR /////////////////////////////////////
+//                                char *FICFDISK=strcat(l2,nm);
+                                     strcat(l2,"\0");
+
+                                FILE *fp2=fopen(l2,"r+b"); // ABRO PARA LECTURA Y ESCRITURA
                                 MasterBootRecord LEER;
-                                FILE *fp=fopen(FICFDISK,"r+");
-                                MasterBootRecord fdiskkk; // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
-                                fread(&LEER,sizeof(MasterBootRecord),1,fp);
+                                // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
+                                fread(&LEER,sizeof(MasterBootRecord),1,fp2);
 
-                                printf("Signature %d , Tamaño Total Del disco %d\n",fdiskkk.mbr_disk_signature,fdiskkk.mbr_tamanio);//DATOS DEL MBR
-                                fclose(fp);
+                                printf("Signature %d , Tamaño Total Del disco %d , Tamaño MBr %d\n",LEER.mbr_disk_signature,LEER.mbr_tamanio, sizeof(MasterBootRecord));//DATOS DEL MBR
+                               // fclose(fp2);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                               int bytesrestantes=0;
+                                for (int d=0;d<=3;d++) {
 
-                                TAMANIOREAL=fdiskkk.mbr_tamanio - sizeof(MasterBootRecord); // ESPACIO YA DISPONIBLE
-                                int size=sizeof(MasterBootRecord)+1;
+                                    bytesrestantes=LEER.mbr_particion_[d].part_size + bytesrestantes;
+                               }
+                                TAMANIOREAL=LEER.mbr_tamanio - sizeof(MasterBootRecord) - bytesrestantes; // ESPACIO YA DISPONIBLE
+
+                                printf("Tamaño REAL disponible---> %d\n",TAMANIOREAL);
+                                int size=tamanioBytes;
                                 int start;
+////////////////////////////////////////////////////// VERIFICAR CUANTAS PRIMARIAS O EXTENDIDAS HAY//////////////////////////////////////////
+                              //  MasterBootRecord comparar;
+                                for (int d=0;d<=3;d++) {
+                                  char *compa= (LEER.mbr_particion_[d].part_type);
+                                    //printf("%d\n",compa);
+                                   if(compa==0){ ParticionesLibres++;
 
-                                MasterBootRecord verificar;
+                                    }else if (compa=="p"){ particionesPrimarias++;
 
-                                if (TAMANIOREAL<=tamanioBytes) {
-                                for (int p=0;p<3;p++) {
-                                    printf("Buscando particiones... \n");
+                                    }else if (compa=="e") {particionesextendidas++;
 
+                                    }else {printf("Error en Type\n");}
 
-                                        if (verificar.mbr_particion_[p].part_size==0){
+                                }
+                                printf("ParticioLibres %d, ParticioPrima %d, ParticionesExt %d\n",ParticionesLibres,particionesPrimarias,particionesextendidas);
 
-                                               strcpy(verificar.mbr_particion_[p].part_status,"Activa");
-                                               strncpy(verificar.mbr_particion_[p].part_type,dtype,sizeof(dtype));
-                                               strncpy(verificar.mbr_particion_[p].part_fit,dfit,sizeof(dfit));
-                                               strcpy(verificar.mbr_particion_[p].part_star,tamanioBytes);
-                                               strcpy(verificar.mbr_particion_[p].part_size,tamanioBytes);
-                                               strncpy(verificar.mbr_particion_[p].part_name,nm,sizeof(nm));
+                                int cantidadpuesta=0;
+////////////////////////////////////////////////////// VERIFICAR para poder insertar/////////////////////////////////////////////////////////////
+                               if (ParticionesLibres<=4){
+                                if ((particionesPrimarias<=3 && particionesextendidas==1)||(particionesPrimarias<=4 && particionesextendidas==0)){
 
+                                if (tamanioBytes<=TAMANIOREAL){
+                                for (int p=0;p<=3;p++) {
+                                    printf("Buscando particiones...................... \n");
+                                    int sizze=LEER.mbr_particion_[p].part_size;
+                                        if (sizze==0){
+
+                                               LEER.mbr_particion_[p].part_status='A';
+                                               LEER.mbr_particion_[p].part_type=*dtype;
+                                               LEER.mbr_particion_[p].part_fit=*dfit;
+
+                                               for (int u=0;u<=3;u++){
+                                                   if (LEER.mbr_particion_[u].part_size>0){
+                                                    cantidadpuesta=LEER.mbr_particion_[u].part_size+cantidadpuesta;
+                                                   }else {printf("Particion vacia [%d]\n",u);}
+
+                                               }
+
+                                               start=sizeof(MasterBootRecord)+cantidadpuesta +1;
+                                               LEER.mbr_particion_[p].part_star=start;
+                                               LEER.mbr_particion_[p].part_size=tamanioBytes;
+                                               strcpy(LEER.mbr_particion_[p].part_name,nm);
+                                               printf("Su partición fue escrita en--> [%d]\n",p);
+                                               break;
                                         }
-                                    }
+                                        else{printf("No hay espacio para almacenar\n");}
+                                    }//FIN DE FOR RECORRER
+////////////////////////////////////////////////////// ESCRIBIR DATOS NUEVOS/////////////////////////////////////////////////////////////
 
-                                }else{printf("No hay espacio disponible en el disco -.- Adios -.-\n");}
+                                FILE *reescribir =fopen(l2,"w+b");
+                                fseek(reescribir,0,SEEK_SET);
+                                fwrite(&LEER,sizeof(MasterBootRecord),1,reescribir);
+                                fclose(reescribir);
 
-                       ////////////////////////////////////////////////////////////////////////////////////////////////////
+                                }else{printf("No hay espacio disponible en el disco\n");}
+
+                                }else if (particionesPrimarias<=4 && particionesextendidas==0){
+
+
+                                }else {printf("No se puede crear la partición");}   // IF DE PARTICIONES
+
+                                 }// PARTICIONES LIBRES
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
                                  }else {printf("Otra opción \n");}
@@ -617,8 +688,8 @@ if (pp==2 && ll==1) {
 
                             }
 
-                        }// IF DEL ESTADO PRINCIPAL DEL ESTADO
-                            else {printf("El SIZE es menor a 0");}
+                        }// IF DEL ESTADO PRINCIPAL DEL ESTADO///////////////////////
+                            else {printf("Error en parametros de entrada \n");}
 
 
                     }break;pp=0;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
@@ -636,4 +707,3 @@ if (pp==2 && ll==1) {
 
     return 0;
 }
-
