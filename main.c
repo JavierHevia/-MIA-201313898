@@ -174,7 +174,9 @@ while(d==0){
         fgets(Guarda,350,stdin);
 
 
-        strcpy(Guarda,"fdisk -size::1 -name::\"prueba1\" -path::\"/home/javier/Documentos/prueba/prueba1.dsk\"");
+        //strcpy(Guarda,"fdisk -size::2 -name::\"prueba2\" -path::\"/home/javier/Documentos/prueba/prueba1.dsk\"");
+        strcpy(Guarda,"fdisk -size::2 -name::\"prueba2\" -path::\"/home/javier/Documentos/prueba/prueba1.dsk\" \\");
+
 //      strcpy(Guarda,"mkdisk -size::3 -name::\"prueba1.dsk\" -path::\"/home/javier/Documentos/prueba/\"");
 
         if (pp==0){strcpy(Guardar2, strtok(Guarda,"\n"));} //separa el \n
@@ -441,7 +443,7 @@ if (pp==2 && ll==1) {
                         char *fit,*dfit="wf"; char *dele, *deleminar;
                         char *name,*dname; char *add, *dadd; bool estado; char *l2,*nm; int EstadDELETE=0; int EstadoUNIT=0;
                         unsigned int tamanioBytes; int EstadoAdd=0; unsigned int TamanioSize=1; int estadosiexiste=0;
-                        unsigned int TAMANIOREAL; int estadotype=0;
+                        unsigned int TAMANIOREAL; int estadotype=0; int estadoprimaria, estadoextendida, estadologica;
 
 
                         int q;
@@ -583,14 +585,16 @@ if (pp==2 && ll==1) {
                //////////////////////////////// LEER EL ARCHIVO PARA LEER EL MBR /////////////////////////////////////
 //                                char *FICFDISK=strcat(l2,nm);
                                      strcat(l2,"\0");
-
-                                FILE *fp2=fopen(l2,"r+b"); // ABRO PARA LECTURA Y ESCRITURA
+///////////////////////////////////////////////////FICHERO GENERAL///////////////////////////////////////////////
+                                FILE *fp2=fopen(l2,"rb+"); // ABRO PARA LECTURA Y ESCRITURA
                                 MasterBootRecord LEER;
+
+
                                 // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
                                 fread(&LEER,sizeof(MasterBootRecord),1,fp2);
 
                                 printf("Signature %d , Tamaño Total Del disco %d , Tamaño MBr %d\n",LEER.mbr_disk_signature,LEER.mbr_tamanio, sizeof(MasterBootRecord));//DATOS DEL MBR
-                               // fclose(fp2);
+                                //fclose(fp2);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                int bytesrestantes=0;
                                 for (int d=0;d<=3;d++) {
@@ -600,6 +604,8 @@ if (pp==2 && ll==1) {
                                 TAMANIOREAL=LEER.mbr_tamanio - sizeof(MasterBootRecord) - bytesrestantes; // ESPACIO YA DISPONIBLE
 
                                 printf("Tamaño REAL disponible---> %d\n",TAMANIOREAL);
+                                int espaciolibre= LEER.mbr_tamanio-bytesrestantes-sizeof(MasterBootRecord);
+                                printf("Libre---> [%d]\n",espaciolibre);
                                 int size=tamanioBytes;
                                 int start;
 ////////////////////////////////////////////////////// VERIFICAR CUANTAS PRIMARIAS O EXTENDIDAS HAY//////////////////////////////////////////
@@ -609,11 +615,13 @@ if (pp==2 && ll==1) {
                                     //printf("%d\n",compa);
                                    if(compa==0){ ParticionesLibres++;
 
-                                    }else if (compa=="p"){ particionesPrimarias++;
+                                    }else if (compa=='p'){ particionesPrimarias++; estadoprimaria=1;
 
-                                    }else if (compa=="e") {particionesextendidas++;
+                                    }else if (compa=='e') {particionesextendidas++; estadoextendida=1;
 
-                                    }else {printf("Error en Type\n");}
+                                    } else if (compa=='l') {estadologica=1;
+
+                                   }else {printf("Error en Type\n");}
 
                                 }
                                 printf("ParticioLibres %d, ParticioPrima %d, ParticionesExt %d\n",ParticionesLibres,particionesPrimarias,particionesextendidas);
@@ -621,9 +629,9 @@ if (pp==2 && ll==1) {
                                 int cantidadpuesta=0;
 ////////////////////////////////////////////////////// VERIFICAR para poder insertar/////////////////////////////////////////////////////////////
                                if (ParticionesLibres<=4){
-                                if ((particionesPrimarias<=3 && particionesextendidas==1)||(particionesPrimarias<=4 && particionesextendidas==0)){
+                                if ((particionesPrimarias<=3 && particionesextendidas==1 && estadoprimaria==1 )||(particionesPrimarias<=4 && particionesextendidas==0 && estadoprimaria==1 )){
 
-                                if (tamanioBytes<=TAMANIOREAL){
+                                if (tamanioBytes<=TAMANIOREAL && estadoprimaria==1){
                                 for (int p=0;p<=3;p++) {
                                     printf("Buscando particiones...................... \n");
                                     int sizze=LEER.mbr_particion_[p].part_size;
@@ -647,23 +655,82 @@ if (pp==2 && ll==1) {
                                                printf("Su partición fue escrita en--> [%d]\n",p);
                                                break;
                                         }
-                                        else{printf("No hay espacio para almacenar\n");}
+                                        else{printf("No hay espacio para almacenar en Partición[%d]\n",p);}
                                     }//FIN DE FOR RECORRER
+//////////////////////////////////////////////////////SOBRE ESCRIBIENDO EL ARCHIVO///////////////////////////////////////
+                                fseek(fp2,0,SEEK_SET);
+                                fwrite(&LEER,sizeof(MasterBootRecord),1,fp2);
+                                fclose(fp2);
+
 ////////////////////////////////////////////////////// ESCRIBIR DATOS NUEVOS/////////////////////////////////////////////////////////////
 
-                                FILE *reescribir =fopen(l2,"w+b");
-                                fseek(reescribir,0,SEEK_SET);
-                                fwrite(&LEER,sizeof(MasterBootRecord),1,reescribir);
-                                fclose(reescribir);
+//                                FILE *fp3;
+
+//                                fp3=fopen(l2,"r+");
+//                                MasterBootRecord temporal;
+//                                fread(&temporal,sizeof(MasterBootRecord),1,fp3);
+
+//                                printf("signature %d , tamanio %d\n",temporal.mbr_disk_signature,temporal.mbr_tamanio);
+//                                fclose(fp3);
+////////////////////////////////////////////////// CREANDO LAS EXTENDIDAS /////////////////////////////////////////////
+                                }else if (estadoextendida==1 && particionesextendidas==1 && particionesPrimarias<=4){
+
+///////////////////////////////////////////////////////////////ESCRIBO EN EL FICHERO EBR////////////////////////////////
+ExtendedBootRecord EBR;
+                                    if (sizeof(ExtendedBootRecord)<=tamanioBytes) {
+                                        EBR.part_status='A';
+                                        EBR.part_fit=*dtype;
+                                        EBR.part_start= sizeof(MasterBootRecord) +1;
+                                        EBR.part_size=tamanioBytes;
+                                        EBR.part_next=-1;
+                                        strcpy(EBR.part_size,nm);
+
+                                        fseek(fp2,sizeof(MasterBootRecord) +1,SEEK_SET);
+                                        fwrite(&EBR,sizeof(ExtendedBootRecord),1,fp2);
+                                        fclose(fp2);
+
+                                    }else {printf("No hay espacio en la Extendida \n");}
+//////////////////////////////////////////////////   LEER EL EBR    ///////////////////////////////////////////////////////////////
+      //////////////////////////////////////////// PARTICION LOGICA ////////////////////////////////////////////////////////
+                                }else if (estadologica==1 && particionesextendidas==1 && particionesPrimarias<=3) {
+
+                                    FILE *fp3=fopen(l2,"rb+"); // ABRO PARA LECTURA Y ESCRITURA
+                                   ExtendedBootRecord EBRLeer;
+
+                                    // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
+                                    fread(&EBRLeer,sizeof(ExtendedBootRecord),1,fp3);
+
+                                    printf("Tamaño %d , Tamaño EBR %d\n",EBRLeer.part_size, sizeof(MasterBootRecord));//DATOS DEL MBR
+
+                                    EBRLeer.part_status='A';
+                                    EBRLeer.part_fit=*dtype;
+                                    EBRLeer.part_start= sizeof(MasterBootRecord) +1;
+                                    EBRLeer.part_size=tamanioBytes;
+                                    EBRLeer.part_next=-1;
+                                    strcpy(EBRLeer.part_size,nm);
+
+                                    fseek(fp3,sizeof(MasterBootRecord)+sizeof(ExtendedBootRecord)+EBRLeer.part_size+1,SEEK_SET);
+                                    fwrite(&EBRLeer,sizeof(MasterBootRecord),1,fp3);
+
+
+
+                                    fclose(fp3);
+
+
+
+
+
+
+
 
                                 }else{printf("No hay espacio disponible en el disco\n");}
 
-                                }else if (particionesPrimarias<=4 && particionesextendidas==0){
 
 
-                                }else {printf("No se puede crear la partición");}   // IF DE PARTICIONES
 
-                                 }// PARTICIONES LIBRES
+                                }else {printf("No Cumple la regla de Primarias y Extendidas \n");}   // IF DE PARTICIONES
+
+                                 }    // PARTICIONES LIBRES
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -692,7 +759,7 @@ if (pp==2 && ll==1) {
                             else {printf("Error en parametros de entrada \n");}
 
 
-                    }break;pp=0;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
+                    }memset(&Guardar2[0], 0, sizeof(Guardar2)); memset(&Guarda[0], 0, sizeof(Guarda)); ll=0,aa=0,gg=0; pp=0;  break;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
              }      //FOOOOOOOOOOOOOOOOOOOR PRINCIPAL
             }  //if palabraaaa2
 
@@ -700,8 +767,8 @@ if (pp==2 && ll==1) {
 
         } // ESTADO 2 IF
 
-          pp=2;
-
+          //pp=2;
+          pp=0;
     } // del whileeee
 
 
