@@ -1,0 +1,186 @@
+ if(strncasecmp((*(Palabra + t)), "#",1)==0){
+                printf("Comentario# \n");
+                }
+
+                if (strcasecmp((*(Palabra + t)), "mkdisk")==0)
+                {
+                     char *Size,*Stamanio;
+                     char *Unit,*Utipo="m";
+                     char *Path,*Palacena;
+                     char *nombre;
+                     char *l;
+                     char *p;
+                     bool estado;
+                     int valuar;
+
+                    printf("EntraMKdisk\n"); /////////////////////////// PRIMERA BANDERA
+                    int r;
+                    for (r=(t+1); *(Palabra + r); r++)
+                    {
+
+                        if(strncasecmp((*(Palabra + r)), "-size",5)==0)
+                        {
+                        printf("----------------------------------------\n");
+
+                            printf("EntraSize\n");
+
+                            Size=strtok(*(Palabra + r),"::");
+                            Stamanio=strtok(NULL,"::");
+                            valuar =(int) *Stamanio -48;// convertir char* a int
+                            printf("LALALALALA%d \n",valuar);
+                            if (valuar>=0) {printf("tamaño-Correcto\n"); estado=true;} else {printf("tamaño-Incorrecto <0\n");}
+                            printf("-Size--> %s\n",Size);
+                            printf("-Tamaño--> %s\n",Stamanio);
+                            printf("----------------------------------------\n");
+
+                        }else if (strncasecmp((*(Palabra + r)), "+unit",5)==0) {
+
+                            printf("----------------------------------------\n");
+                            printf("EntraUnit\n");
+
+                            Unit=strtok(*(Palabra + r),"::");
+                            Utipo=strtok(NULL,"::");
+                            printf("--> %s\n",Unit);
+                            printf("Unidad--> %s\n",Utipo);
+                            printf("----------------------------------------\n");
+
+                        }else if (strncasecmp((*(Palabra + r)), "-path",5)==0){
+                            printf("----------------------------------------\n");
+
+                            printf("EntraPath\n");
+
+                            Path=strtok(*(Palabra + r),"::");
+                            Palacena=strtok(NULL,"::");
+                            l=strtok(Palacena,"\"");
+
+                            printf("-Path--> %s\n",Path);
+                            printf("Direccion--> %s\n",l);
+                            printf("----------------------------------------\n");
+
+                        }else if (strncasecmp((*(Palabra + r)), "\\",1)==0) {
+                            printf("----------------------------------------\n");
+                            printf("VieneEspacio\n");
+                            estado1=1;
+                            printf("----------------------------------------\n");
+
+                        }else if (strncasecmp((*(Palabra + r)), "-name",5)==0) {
+                            printf("----------------------------------------\n");
+                            printf("EntraName\n");
+
+                            char *th=strtok(*(Palabra + r),"::");
+                            nombre=strtok(NULL,"::");
+                            p=strtok(nombre,"\"");
+
+                            printf("--> %s\n",th);
+                            printf("Nombre--> %s\n",p);
+                            printf("----------------------------------------\n");
+
+                        } else {}
+                    //devo de limpiar las variables...
+                     //printf("**************%s%s\n", p,l);
+                     //printf("**************%s\n", l);
+                    // fp = fopen ( "%s%s",p,l, "w+" );
+                    // fwrite( cadena, sizeof(char), sizeof(cadena), fp );
+                    }
+                    int espaciobinario=0;
+
+                        char cadena[] ="\0";
+                        char *o=strcat(l,p);
+                        printf("dirección-----> %s\n",o);
+
+                        if (estado==true) {
+
+                            if (strncasecmp(Utipo, "m",1)==0) {
+                                printf(":D  m  Megabytes\n" );
+                                espaciobinario=valuar*1024*1024; //COMANDO M 1024^2
+
+                            }else if (strncasecmp(Utipo, "k",1)==0) {
+                                printf(":D  k  Kilobytes\n" );
+                                espaciobinario=valuar*1024; //COMANDO K 1024
+                            }else {
+                                printf("ERROR TIPO UNIT %s\n",Utipo );}
+
+
+
+                        fp = fopen ( o, "w+" );
+                        fwrite( "\0", espaciobinario, sizeof(cadena), fp );
+                        fclose ( fp );
+
+                        } else {printf("ERROR TAMAÑO <0 %s");}
+
+
+                } //AQUÍ TERMINA MKDISK............................................
+
+
+                  if (strcasecmp((*(Palabra + t)), "rmdisk")==0){
+
+                        char *Path2,*Palacena2;
+                        char *l2;
+                        char *p;
+                        printf("EntraMRdisk\n");
+
+                        int r;
+                        for (r=(t+1); *(Palabra + r); r++)
+                            {
+                                 if(strncasecmp((*(Palabra + r)), "-path",5)==0)
+                                    {
+                                        printf("----------------------------------------\n");
+
+                                        printf("EntraPath\n");
+
+                                        Path2=strtok(*(Palabra + r),"::");
+                                        Palacena2=strtok(NULL,"::");
+                                        l2=strtok(Palacena2,"\"");
+
+                                        printf("Path2--> %s\n",Path2);
+                                        printf("Direccion2--> %s\n",l2);
+                                        printf("----------------------------------------\n");
+
+                                    }
+                            }
+                          // system("PAUSE");
+                          //EJEMPLO ENCONTRADO EN http://comunidad.dragonjar.org/archive/t-7172.html
+                long tamArchivo;
+                char * nomArchivo;
+                FILE * archivo,*existe=fopen (nomArchivo, "r"); //verifica si existe el archivo
+
+                if (existe) {
+                printf("Archivo para borrar si existe\n");
+                long i;
+
+                nomArchivo = l2; /* Nombre (si esta en misma carpeta) o ruta del archivo */
+
+                archivo = fopen(nomArchivo,"r+"); /* Abro el archivo para lectura/escritura */
+                fseek(archivo,0,SEEK_END);        /* Recorro el archivo hasta el final */
+                tamArchivo = ftell(archivo);     /* Almaceno la posicion actual en el archivo */
+                rewind(archivo);                 /* Regreso al principio del archivo */
+
+                for(i=0; i<tamArchivo; i++)     /* Recorro cada posicion del archivo */
+                {
+                fprintf(archivo,"%c",'0');       /* Imprimo un 0 en la posicion */
+                }
+
+                fclose(archivo); /* Cierro el archivo */
+                remove(archivo); //ELIMINA EL ARCHIVO
+
+                }else {printf("NO existe archivo \n");}
+
+                    } //AQUÍ TERMINA MRDISK-------------------------------------------------------------------
+
+
+                 if (strcasecmp((*(Palabra + t)), "fdisk")==0){
+
+
+
+                 }
+
+
+
+            printf("Metodo=[%s]\n", *(Palabra + t));
+            //free(*(Palabra + i));
+            //free(Palabra);
+
+        //}
+        //free(Palabra); //TERMINA EL FOOOOOOOOOOOOOOOR DE LA LECTURA
+   }//free(Palabra2);
+
