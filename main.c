@@ -46,16 +46,22 @@ typedef struct nparticion{
     char path[120];
     PARTMONTAR contenido[30];
 }NPARTICION;
-
-
 NPARTICION montada[26];
+
+
 ////////////////////////////////////
 
 char Guarda[500];
 char Guardar2[500];
+
+char leer[500];
+char leer2[500];
+
 char j[200];
 char** Palabra;
 char** Palabra2;
+char** almacena;
+
 
 //VARIABLES PARA PARTICIONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES
 unsigned int TAMANIOREAL=0;
@@ -184,11 +190,92 @@ int estado1=0;///////////////////////////////////// cuando tiene opcional
 int pp=0,ll=0,aa=0,gg=0;
    printf("\t\t\t Bienvenido a la FASE 1 Archivos \n");
 
-FILE *archiscrip;
-archiscrip = fopen("/home/javier/Documentos/archivos/script.sh","r");
-if (archiscrip == NULL){
-                printf("Archivo de entrada no econtrado\n");
+
+int entraaaa=0;
+ char *EJEC;
+while (d=0){
+
+    printf("Ingrese los comandos que quiera ejecutar \n");
+    fgets(leer,200,stdin);
+    almacena = str_split(leer,' ');
+    if (almacena)
+    {
+
+        int t;
+        for (t = 0; *(almacena + t); t++)
+        {
+            if(strncasecmp((*(almacena + t)), "exec",4)==0)
+            {
+                entraaaa=1;
+                EJEC=(*(almacena + (t+1)));
+                        strcat(EJEC,"\0");
+                        entraaaa=1;
+            }else if (strncasecmp((*(almacena + t)), "rep",4)==0){
+
+                printf("--------------------------------Reportes--------------------------------");
+                char *nombre,*p;
+                char *Path2,*l2,*Palacena2,*id,*idtipo;
+                int sss=0;
+                int y;
+                for (y=(t+1); *(Palabra2 + y); y++){
+
+                   if (strncasecmp((*(Palabra2 + y)), "-path",5)==0) {
+
+                           printf("EntraPath\n");
+                           Path2=strtok(*(Palabra2 + y),"::");
+                           Palacena2=strtok(NULL,"::");
+                           l2=strtok(Palacena2,"\"");
+                           strcat(l2,"\0");
+                           printf("--> %s\n",Path2);
+                           printf("Fichero --> %s\n",l2);
+                           printf("----------------------------------------\n");
+
+
+                   }else if (strncasecmp((*(Palabra2 + y)), "-name",5)==0) {
+                       printf("----------------------------------------\n");
+                       printf("EntraName\n");
+                       char *th=strtok(*(Palabra2 + y),"::");
+                       nombre=strtok(NULL,"::");
+                       p=strtok(nombre,"\"");
+                       strcat(p,"\0");
+                       printf("--> %s\n",th);
+                       printf("Nombre--> %s\n",p);
+                       printf("----------------------------------------\n");
+
+                   }else if (strncasecmp((*(Palabra2 + y)), "-id",3)==0) {
+
+                        printf("----------------------------------------\n");
+                        printf("EntraID\n");
+                        id=strtok(*(Palabra2 + y),"::");
+                        idtipo=strtok(NULL,"::");
+                        strcat(idtipo,"\0");
+                        printf("--> %s\n",id);
+                        printf("id--> %s\n",idtipo);
+                        printf("----------------------------------------\n");
+
+                   }else if (strncasecmp((*(Palabra2 + y)), "+ruta",5)==0) {
+                        printf("----------------------------------------\n");
+
+
+                        printf("----------------------------------------\n");
+
+                   }else {printf("Error en los parametros \n");}
+
+                }
+
+                //ENTRA AL REPOOOOOOOOOOOOOOOOOOOOOOOORTE XD
+
+
             }
+        }
+    }
+
+    FILE *archiscrip;
+    archiscrip = fopen(EJEC,"r");
+        if (archiscrip == NULL){
+                   printf("Archivo de entrada no econtrado\n");
+                    }else{
+if (entraaaa==1){
 
  while ((leer = getline(&linea, &longuitud, archiscrip)) != -1){
 
@@ -303,7 +390,7 @@ if (pp==2 && ll==1) {
                             l=strtok(Palacena,"\"");
                             strcat(Palacena,"\0");
                             strcat(l,"\0");
-                            printf("-Path--> %s\n",Path);
+                            printf("--> %s\n",Path);
                             printf("Direccion--> %s\n",l);
 
 
@@ -323,7 +410,7 @@ if (pp==2 && ll==1) {
 
                          }else if (strncasecmp((*(Palabra2 + w)), "-name",5)==0) {
                             printf("----------------------------------------\n");
-                            printf("EntraName\n");
+                            NPARTICION montada[26];printf("EntraName\n");
                             char *th=strtok(*(Palabra2 + w),"::");
                             nombre=strtok(NULL,"::");
                             p=strtok(nombre,"\"");
@@ -333,7 +420,7 @@ if (pp==2 && ll==1) {
                             printf("----------------------------------------\n");
 
                          }else {printf("Error en los parametros \n"); break;} //IF DE ESTADOS
-
+//NPARTICION montada[26];
                     } //////////////////////////////////////////////////////////////termina FOOR DE PALABRAS
 
                     // COMIENZA POR EL ARCHIVO....
@@ -768,7 +855,6 @@ usleep(100);
                                       printf("Extendida Escrita.............................................. \n");
 
                                   //fclose(fp2);
-
 ///////////////////////////////////////////////////////////////ESCRIBO EN EL FICHERO EBR////////////////////////////////
 ExtendedBootRecord EBR;
                                     if (sizeof(ExtendedBootRecord)<=tamanioBytes) {
@@ -781,31 +867,31 @@ ExtendedBootRecord EBR;
 
                                         fseek(fp2,sizeof(MasterBootRecord) +2,SEEK_SET);
                                         fwrite(&EBR,sizeof(ExtendedBootRecord),1,fp2);
-                                        //fclose(fp2);
+                                        fclose(fp2);
 
                                     }else {printf("No hay espacio en la Extendida \n");}
 //////////////////////////////////////////////////   LEER EL EBR    ///////////////////////////////////////////////////////////////
       //////////////////////////////////////////// PARTICION LOGICA ////////////////////////////////////////////////////////
                                 }else if (estadologica==1 && particionesextendidas==1 && particionesPrimarias<=3) {
 
-                                    FILE *fp3=fopen(l2,"rb+"); // ABRO PARA LECTURA Y ESCRITURA
-                                   ExtendedBootRecord EBRLeer;
+//                                    FILE *fp3=fopen(l2,"rb+"); // ABRO PARA LECTURA Y ESCRITURA
+//                                   ExtendedBootRecord EBRLeer;
 
-                                    // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
-                                    fread(&EBRLeer,sizeof(ExtendedBootRecord),1,fp3);
+//                                    // MBR PARA LEER EL ARCHIVO Y DATOS ANTIGUOS
+//                                    fread(&EBRLeer,sizeof(ExtendedBootRecord),1,fp3);
 
-                                    printf("Tamaño %d , Tamaño EBR %d\n",EBRLeer.part_size, sizeof(MasterBootRecord));//DATOS DEL MBR
+//                                    printf("Tamaño %d , Tamaño EBR %d\n",EBRLeer.part_size, sizeof(MasterBootRecord));//DATOS DEL MBR
 
-                                    EBRLeer.part_status='A';
-                                    EBRLeer.part_fit=*dtype;
-                                    EBRLeer.part_start= sizeof(MasterBootRecord) +1;
-                                    EBRLeer.part_size=tamanioBytes;
-                                    EBRLeer.part_next=sizeof(MasterBootRecord)+sizeof(ExtendedBootRecord)+EBRLeer.part_size-1;
-                                    strcpy(EBRLeer.part_size,nm);
+//                                    EBRLeer.part_status='A';
+//                                    EBRLeer.part_fit=*dtype;
+//                                    EBRLeer.part_start= sizeof(MasterBootRecord) +1;
+//                                    EBRLeer.part_size=tamanioBytes;
+//                                    EBRLeer.part_next=sizeof(MasterBootRecord)+sizeof(ExtendedBootRecord)+EBRLeer.part_size-1;
+//                                    strcpy(EBRLeer.part_size,nm);
 
-                                    fseek(fp3,sizeof(MasterBootRecord)+sizeof(ExtendedBootRecord)+EBRLeer.part_size+1,SEEK_SET);
-                                    fwrite(&EBRLeer,sizeof(MasterBootRecord),1,fp3);
-
+//                                    fseek(fp3,sizeof(MasterBootRecord)+sizeof(ExtendedBootRecord)+EBRLeer.part_size+1,SEEK_SET);
+//                                    fwrite(&EBRLeer,sizeof(MasterBootRecord),1,fp3);
+                                printf("No hago logicas :( :( \n");
 
 
                                     //fclose(fp3);
@@ -815,7 +901,7 @@ ExtendedBootRecord EBR;
                                  // IF DE PARTICIONES
 
                                  }else {printf("Ya no hay particiones libres \n");}
-                               fclose(fp2);
+                               //fclose(fp2);
                                  }else {printf("Ya no se puede escribir mas particiones \n");}   // PARTICIONES LIBRES
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -870,7 +956,7 @@ ExtendedBootRecord EBR;
                                             if (strcasecmp(nomcomparar,dname)==0){
 
                                                 for (int d=0;d<=3;d++) {
-                                                    ArDELETE.mbr_particion_[p].part_size=0;
+                                                    ArDELETE.mbr_particion_[p].part_star=0;
                                                 }
 
                                             }else {printf("No se encontró la partición \n");}
@@ -880,9 +966,6 @@ ExtendedBootRecord EBR;
 
 
                                 }else {printf("Parametros de error en DELETE");}
-
-
-
                             }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                             if (EstadoAdd==1) {
@@ -896,12 +979,12 @@ ExtendedBootRecord EBR;
                             else {printf("Error en parametros de entrada \n");}
 
 
-                    }                         memset(&Guardar2[0], 0, sizeof(Guardar2)); memset(&Guarda[0], 0, sizeof(Guarda)); ll=0,aa=0,gg=0; pp=0;  break;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
+                    } //memset(&Guardar2[0], 0, sizeof(Guardar2)); memset(&Guarda[0], 0, sizeof(Guarda)); ll=0,aa=0,gg=0; pp=0;  break;   //IFFFFFFFFFFFFFFFFFFFFFF FDISK
 
                      if (strcasecmp((*(Palabra2 + z)), "mount")==0){
                          char *nombre="";char *p="";
                          char *Path2,*Palacena2;
-                         char *l2;
+                         char *l2; int est=0;
                          int Mdiscos = 0;int existeD = 0; int existeP = 0; // discos creados/ existedisco /existepartición
 
                          printf("--------------Entra MOUNT--------------\n");
@@ -909,13 +992,8 @@ ExtendedBootRecord EBR;
                          int y;
                          for (y=(z+1); *(Palabra2 + y); y++){
 
-                             if(strncasecmp((*(Palabra2 + y)), "-path",5)==0)
-                             {
-                                 FILE *ficheroparamontar;
-                                 ficheroparamontar = fopen( l2, "r+b" );
-                                 printf("----------------------------------------\n");
-                                 if(ficheroparamontar!=NULL){
-
+                             if(strncasecmp((*(Palabra2 + y)), "-path",5)==0){
+                                printf("----------------------------------------\n");
                                      printf("EntraPath\n");
 
                                      Path2=strtok(*(Palabra2 + y),"::");
@@ -926,9 +1004,13 @@ ExtendedBootRecord EBR;
                                      printf("Fichero --> %s\n",l2);
                                      printf("----------------------------------------\n");
 
-                                 }else {printf("Fichero NO Existe->\n");}
+                                     FILE *ficheroparamontar;
+                                     ficheroparamontar = fopen( l2, "r+b" );
 
-                             } else if (strncasecmp((*(Palabra2 + y)), "-name",5)==0) {
+                                     if(ficheroparamontar!=NULL){est=1;
+                                        }else {printf("Fichero NO Existe->\n");}
+
+                             }else if (strncasecmp((*(Palabra2 + y)), "-name",5)==0) {
                                  printf("----------------------------------------\n");
                                  printf("EntraName\n");
                                  char *th=strtok(*(Palabra2 + y),"::");
@@ -939,11 +1021,24 @@ ExtendedBootRecord EBR;
                                  printf("Nombre--> %s\n",p);
                                  printf("----------------------------------------\n");
 
-                             }else {printf("Error en los parametros de entrada \n");}
+                             }else {
+
+                                 printf("----------------REPORTE DE MOUNT---------------- \n");
+                                 for(int m = 0; m < 26; m++){
+                                     for(int n = 0; n < 20; n++){
+                                         if(strcmp(montada[m].contenido[n].clave,"")!=0){
+                                          char primercarac = (m + 97);
+                                          printf("id::vd[%c][%d] -path::\"%s\" -name::\"%s\"\n",primercarac,(n+1),montada[m].path,montada[m].contenido[n].clave);
+                                         }
+                                     }
+                                 }printf("---------------------REPORTE DE MOUNT--------------------- \n");
+
+
+                             }// TERMINA IF DEL MOUNT ...................
                          }// FIN DEL FOR MOUNT
 
+    if (est==1){
                         //COMENZAMOS A MONTAR LA PARTICION
-
                         //VERIFICA SI EXISTE EN EL VECTOR ALGUNA P.MONTADA
                          for(int b = 0; b < 26; b++){
                                if(strcmp(l2,montada[b].path)==0){
@@ -985,6 +1080,7 @@ ExtendedBootRecord EBR;
                                  }else{
                                     printf("Partición ya montada, no se puede volver a montar.\n");
                                  }
+    }else {printf("Archivo no encontrado............\n");}
 
                         }// IF DEL MOUNT
 
@@ -992,9 +1088,167 @@ ExtendedBootRecord EBR;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                      if (strcasecmp((*(Palabra2 + z)), "umount")==0){
+                         char *id,*idtipo;
+
+                         printf("--------------Entra UMOUNT--------------\n");
+
+                         int y;
+                         for (y=(z+1); *(Palabra2 + y); y++){
+
+                            if (strncasecmp((*(Palabra2 + y)), "-id",3)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraID\n");
+                                id=strtok(*(Palabra2 + y),"::");
+                                idtipo=strtok(NULL,"::");
+                                strcat(idtipo,"\0");
+                                printf("--> %s\n",id);
+                                printf("id--> %s\n",idtipo);
+                                printf("----------------------------------------\n");
+
+                                if((idtipo[0] =='v') && (idtipo[1]=='d')){ // los dos primeros parametros seran iguales
+                                        int pdiscoletra = idtipo[2] - 97; //convertir letra en numero
+                                        char conten[5];
+                                        int g=0;
+                                        for(int a =3;a<strlen(idtipo); a++){ //Convierte la letra que venga en la tercera posición...
+                                            conten[g] = idtipo[a]; g++;}
+
+                                 int letra = atoi(conten); letra--;
+                                 if(strcmp(montada[pdiscoletra].contenido[letra].clave,"")==0){
+                                             printf("No esta la partición [%s]\n",idtipo);
+                                         }else{
+                                             strcpy(montada[pdiscoletra].contenido[letra].clave,"");
+                                         }
+
+                                 for(int a = 0; a < 26; a++){ //verificar la letra que venga en todas las letras
+                                           int cont = 0;
+                                           for(int b = 0; b < 20; b++){
+                                               if(strcmp(montada[a].contenido[b].clave,"")!=0){
+                                                   cont++;
+                                                       printf("Partición desmontada [%s] \n");
+                                               }    //TERMINA IF
+                                           }//TERMINA FOOOR
+                                           if(cont == 0){strcpy(montada[a].path,"");
+                                           }//IF
+                                       }//FOR TERMINA
+
+                                 }else {printf("id No valido.............................\n");}//termina verificar el vd
+
+                            }else {printf("Error en parametro de entrada");}
+
+                         }  //FOOOOR UMOUNT
+                     }
+
+                     if (strcasecmp((*(Palabra2 + z)), "rep")==0){
+                         char *nombre,*p;
+                         char *Path2,*l2,*Palacena2,*id,*idtipo; int est=0;
+                         int y;
+                         for (y=(z+1); *(Palabra2 + y); y++){
+
+                            if (strncasecmp((*(Palabra2 + y)), "-path",5)==0) {
+
+                                    printf("EntraPath\n");
+                                    Path2=strtok(*(Palabra2 + y),"::");
+                                    Palacena2=strtok(NULL,"::");
+                                    l2=strtok(Palacena2,"\"");
+                                    strcat(l2,"\0");
+                                    printf("--> %s\n",Path2);
+                                    printf("Fichero --> %s\n",l2);
+                                    printf("----------------------------------------\n");
+
+                                    FILE *ficheroparamontar;
+                                    ficheroparamontar = fopen( l2, "r+b" );
+
+                                    if(ficheroparamontar!=NULL){
+                                }else {printf("Fichero NO Existe->\n"); est=1; }
+
+                            }else if (strncasecmp((*(Palabra2 + y)), "-name",5)==0) {
+                                printf("----------------------------------------\n");
+                                printf("EntraName\n");
+                                char *th=strtok(*(Palabra2 + y),"::");
+                                nombre=strtok(NULL,"::");
+                                p=strtok(nombre,"\"");
+                                strcat(p,"\0");
+                                printf("--> %s\n",th);
+                                printf("Nombre--> %s\n",p);
+                                printf("----------------------------------------\n");
+
+                            }else if (strncasecmp((*(Palabra2 + y)), "-id",3)==0) {
+
+                                 printf("----------------------------------------\n");
+                                 printf("EntraID\n");
+                                 id=strtok(*(Palabra2 + y),"::");
+                                 idtipo=strtok(NULL,"::");
+                                 strcat(idtipo,"\0");
+                                 printf("--> %s\n",id);
+                                 printf("id--> %s\n",idtipo);
+                                 printf("----------------------------------------\n");
+
+                            }else if (strncasecmp((*(Palabra2 + y)), "+ruta",5)==0) {
+                                 printf("----------------------------------------\n");
+
+
+                                 printf("----------------------------------------\n");
+
+                            }else {printf("Error en los parametros \n");}
+
+                         }//FIN DEL FOOOOOOOR
+
+                         FILE *reporte = fopen("Reporte.dot","w");
+
+                        fprintf(reporte,"digraph g{\n");
+                        fprintf(reporte,"node[shape = box];\n");
+                        char concatenar[150];
+                        int disc = id[2] - 97;
+                        strcpy(concatenar,montada[disc].path);
+
+                        //LEER ARCHIVO PARA VER EL MBR
+                        FILE *LMBR = fopen(montada[disc].path,"rb+");
+                            MasterBootRecord recobrar;
+                            fseek(LMBR,0,SEEK_SET);
+                            fread(&recobrar,sizeof(MasterBootRecord),1,LMBR);
+
+                            //DATOS DEL DISCO
+
+                            char nDISCO[50];
+                               char* salto = strtok(concatenar,"/");//separo por /
+                               while(salto != NULL){
+                                   strcpy(nDISCO,salto);
+                                   salto = strtok(NULL,"/");
+                               }
+                               strcpy(concatenar,montada[disc].path);
+
+                               fprintf(LMBR,"label = \"[Reporte -MBR-] %s\";\n",nDISCO);
+                                  fprintf(LMBR,"labelloc = \"t\";\n");
+
+                                  //tabla de primera parte del mbr con datos primarios
+
+                                  fprintf(LMBR,"\"Record\" [label = <<table border = \"4\" cellspacing = \"1\">\n");
+                                     fprintf(LMBR,"<tr><td colspan = \"2\"><b> [MBR]-[%s] </b></td></tr>\n",nDISCO);
+                                     fprintf(LMBR,"<tr><td><b>Nombre</b></td><td><b> Valor </b></td></tr>\n");
+                                     fprintf(LMBR,"<tr><td><b>mbr_size</b></td><td> %d </td></tr>\n",recobrar.mbr_tamanio);
+                                     fprintf(LMBR,"<tr><td><b>mbr_fecha_creacion</b></td><td> %s </td></tr>\n",recobrar.mbr_fecha_creacion);
+                                     fprintf(LMBR,"<tr><td><b>mbr_disk_signature</b></td><td> %d </td></tr>\n",recobrar.mbr_disk_signature);
+
+                                     for(int a = 0; a < 4; a++){
+                                             if(recobrar.mbr_particion_[a].part_status=='A'){
+                                                fprintf(LMBR,"<tr><td><b>part_status_%d</b></td><td>%c</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_status);
+                                                 fprintf(LMBR,"<tr><td><b>part_type_%d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_type)));
+                                                 fprintf(LMBR,"<tr><td><b>part_fit_%d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_fit)));
+                                                fprintf(LMBR,"<tr><td><b>part_start_%d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_star);
+                                                 fprintf(LMBR,"<tr><td><b>part_size_%d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_size);
+                                                 fprintf(LMBR,"<tr><td><b>part_name_%d</b></td><td>%s</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_name);
+                                             }
+                                         }
+                                     fprintf(LMBR,"</table>>];\n");
 
 
 
+
+
+
+                     }//FIN DEL REP IFFFF
+
+                     if (strcasecmp((*(Palabra2 + z)), "exec")==0){
 
 
 
@@ -1008,10 +1262,12 @@ ExtendedBootRecord EBR;
         } // ESTADO 2 IF
 
           //pp=2;
-printf("\n TERMINA LEÍDA DEL ARCHIVO.... ADIOOOOOOOOOOOOOOOOOOOOOS \0 .....\n \n");
           pp=0;
-    } // del whileeee
-
+     } // del whileeee de letas
+    } // TERMINAR EL IFFF
+}//ARCHIVO LEIDOOOOOO
+   }
+ printf("\n TERMINA LEÍDA DEL ARCHIVO.... ADIOOOOOOOOOOOOOOOOOOOOOS.....\n");
 
     return 0;
 }
