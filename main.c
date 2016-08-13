@@ -54,7 +54,7 @@ NPARTICION montada[26];
 char Guarda[500];
 char Guardar2[500];
 
-char leer[500];
+char leer3[500];
 char leer2[500];
 
 char j[200];
@@ -193,11 +193,12 @@ int pp=0,ll=0,aa=0,gg=0;
 
 int entraaaa=0;
  char *EJEC;
-while (d=0){
+ char *c,*d;
+while (d=1){
 
-    printf("Ingrese los comandos que quiera ejecutar \n");
-    fgets(leer,200,stdin);
-    almacena = str_split(leer,' ');
+    printf("Ingrese los comandos que quiera ejecutar Primera parte \n");
+    fgets(leer3,500,stdin);
+    almacena = str_split(leer3,' ');
     if (almacena)
     {
 
@@ -207,9 +208,12 @@ while (d=0){
             if(strncasecmp((*(almacena + t)), "exec",4)==0)
             {
                 entraaaa=1;
-                EJEC=(*(almacena + (t+1)));
+                EJEC=strtok(*(almacena + (t+1))," ");
                         strcat(EJEC,"\0");
-                        entraaaa=1;
+                        c=strtok(EJEC,"\"");
+
+                        printf("Fichero --> %s\n",c);
+
             }else if (strncasecmp((*(almacena + t)), "rep",4)==0){
 
                 printf("--------------------------------Reportes--------------------------------");
@@ -229,8 +233,6 @@ while (d=0){
                            printf("--> %s\n",Path2);
                            printf("Fichero --> %s\n",l2);
                            printf("----------------------------------------\n");
-
-
                    }else if (strncasecmp((*(Palabra2 + y)), "-name",5)==0) {
                        printf("----------------------------------------\n");
                        printf("EntraName\n");
@@ -263,15 +265,73 @@ while (d=0){
 
                 }
 
-                //ENTRA AL REPOOOOOOOOOOOOOOOOOOOOOOOORTE XD
+//                //ENTRA AL REPOOOOOOOOOOOOOOOOOOOOOOOORTE XD
+//                FILE *reporte = fopen("Reporte.dot","w");
 
+//                fprintf(reporte,"digraph g{\n");
+//                fprintf(reporte,"node[shape = box];\n");
+//                char concatenar[150];
+//                int disc = id[2] - 97;
+//                strcpy(concatenar,montada[disc].path);
+
+//                //LEER ARCHIVO PARA VER EL MBR
+//                FILE *LMBR = fopen(montada[disc].path,"rb+");
+//                MasterBootRecord recobrar;
+//                fseek(LMBR,0,SEEK_SET);
+//                fread(&recobrar,sizeof(MasterBootRecord),1,LMBR);
+
+//                //DATOS DEL DISCO leyendo el MBR //////////////////////////////////////////////////
+
+//                char nDISCO[75];
+//                char* salto = strtok(concatenar,"/");//separo por / para conseguir el nombre del archivo
+//                while(salto != NULL){
+//                    strcpy(nDISCO,salto);
+//                    salto = strtok(NULL,"/");
+//                }
+//                strcpy(concatenar,montada[disc].path);
+
+//                fprintf(LMBR,"label = \"[Reporte -MBR-] %s\";\n",nDISCO);
+//                fprintf(LMBR,"labelloc = \"t\";\n");
+
+//                //tabla de primera parte del mbr con datos primarios
+
+//                fprintf(LMBR,"\"Record\" [label = <<table border = \"4\" cellspacing = \"1\">\n");
+//                fprintf(LMBR,"<tr><td colspan = \"2\"><b> [MBR]-[%s] </b></td></tr>\n",nDISCO);
+//                fprintf(LMBR,"<tr><td><b>Nombre</b></td><td><b> Valor </b></td></tr>\n");
+//                fprintf(LMBR,"<tr><td><b>mbr_size</b></td><td> %d </td></tr>\n",recobrar.mbr_tamanio);
+//                fprintf(LMBR,"<tr><td><b>mbr_fecha_creacion</b></td><td> %s </td></tr>\n",recobrar.mbr_fecha_creacion);
+//                fprintf(LMBR,"<tr><td><b>mbr_disk_signature</b></td><td> %d </td></tr>\n",recobrar.mbr_disk_signature);
+
+//                for(int a = 0; a < 4; a++){
+//                    if(recobrar.mbr_particion_[a].part_status=='A'){
+//                        fprintf(LMBR,"<tr><td><b> part_status %d</b></td><td>%c</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_status);
+//                        fprintf(LMBR,"<tr><td><b> part_type %d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_type)));
+//                        fprintf(LMBR,"<tr><td><b> part_fit %d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_fit)));
+//                        fprintf(LMBR,"<tr><td><b> part_start %d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_star);
+//                        fprintf(LMBR,"<tr><td><b> part_size %d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_size);
+//                        fprintf(LMBR,"<tr><td><b> part_name %d</b></td><td>%s</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_name);
+//                    }
+//                }
+//                fprintf(LMBR,"</table>>];\n");
+
+//                fprintf(LMBR,"}");
+//                fflush(LMBR);
+//                fclose(LMBR);
+
+//                //GENERAR DESDE CONSOLA EL graphviz
+
+//                char CONSOLA[600];
+//                strcpy(CONSOLA,"");strcat(CONSOLA,"dot -Tpng Reporte.dot -o ");
+//                strcat(CONSOLA, l2); system(CONSOLA);
+//                strcpy(CONSOLA,"");strcat(CONSOLA,"viewnior \""); strcat(CONSOLA,l2);
+//                strcat(CONSOLA,"\"&"); system(CONSOLA);
 
             }
         }
     }
 
     FILE *archiscrip;
-    archiscrip = fopen(EJEC,"r");
+    archiscrip = fopen(c,"r");
         if (archiscrip == NULL){
                    printf("Archivo de entrada no econtrado\n");
                     }else{
@@ -984,7 +1044,7 @@ ExtendedBootRecord EBR;
                      if (strcasecmp((*(Palabra2 + z)), "mount")==0){
                          char *nombre="";char *p="";
                          char *Path2,*Palacena2;
-                         char *l2; int est=0;
+                         char *l2=""; int est=0;
                          int Mdiscos = 0;int existeD = 0; int existeP = 0; // discos creados/ existedisco /existepartición
 
                          printf("--------------Entra MOUNT--------------\n");
@@ -1054,7 +1114,7 @@ ExtendedBootRecord EBR;
                                      if(strcmp(montada[z].path,"")==0){ //(strcnmp(montada[z].path,p,sizeof p)
                                          strcpy(montada[z].path,l2);
                                       Mdiscos = z;
-                                       printf("Creación del disco\n");
+                                       printf("Creación del disco [%d]\n",z);
                                       break;
                                      }
                                  }
@@ -1084,7 +1144,7 @@ ExtendedBootRecord EBR;
 
                         }// IF DEL MOUNT
 
-                     else {printf("Error en los comandos de entrada \n");}
+                     else {printf("Otros comandos ingresados \n");}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                      if (strcasecmp((*(Palabra2 + z)), "umount")==0){
@@ -1139,8 +1199,9 @@ ExtendedBootRecord EBR;
                      }
 
                      if (strcasecmp((*(Palabra2 + z)), "rep")==0){
+                         printf("---------------------ENTRA A REPORTES---------------------");
                          char *nombre,*p;
-                         char *Path2,*l2,*Palacena2,*id,*idtipo; int est=0;
+                         char *Path2,*l2="",*Palacena2,*id,*idtipo; int est=0;
                          int y;
                          for (y=(z+1); *(Palabra2 + y); y++){
 
@@ -1193,66 +1254,70 @@ ExtendedBootRecord EBR;
 
                          }//FIN DEL FOOOOOOOR
 
-                         FILE *reporte = fopen("Reporte.dot","w");
+                         //ENTRA AL REPOOOOOOOOOOOOOOOOOOOOOOOORTE XD
+                         FILE *escribir = fopen("/home/javier/Escritorio/Reportes.dot","w+");
 
-                        fprintf(reporte,"digraph g{\n");
-                        fprintf(reporte,"node[shape = box];\n");
-                        char concatenar[150];
-                        int disc = id[2] - 97;
-                        strcpy(concatenar,montada[disc].path);
+                                 fprintf(escribir,"digraph g{\n");
+                                 fprintf(escribir,"node[shape = box];\n");
+                                 char concatenar[150];
+                                 int disc = idtipo[2] - 97;
+                                 strcpy(concatenar,montada[disc].path);
 
-                        //LEER ARCHIVO PARA VER EL MBR
-                        FILE *LMBR = fopen(montada[disc].path,"rb+");
-                            MasterBootRecord recobrar;
-                            fseek(LMBR,0,SEEK_SET);
-                            fread(&recobrar,sizeof(MasterBootRecord),1,LMBR);
+                                 //LEER ARCHIVO PARA VER EL MBR
+                                 FILE *LMBR = fopen(montada[disc].path,"rb+");
+                                 MasterBootRecord recobrar;
+                                 fseek(LMBR,0,SEEK_SET);
+                                 fread(&recobrar,sizeof(MasterBootRecord),1,LMBR);
 
-                            //DATOS DEL DISCO
+                                 char DISCO[75];
+                                 char* salto = strtok(concatenar,"/");
+                                 while(salto != NULL){
+                                     strcpy(DISCO,salto);
+                                     salto = strtok(NULL,"/");
+                                 }
+                                 strcpy(concatenar,montada[disc].path);
 
-                            char nDISCO[50];
-                               char* salto = strtok(concatenar,"/");//separo por /
-                               while(salto != NULL){
-                                   strcpy(nDISCO,salto);
-                                   salto = strtok(NULL,"/");
-                               }
-                               strcpy(concatenar,montada[disc].path);
 
-                               fprintf(LMBR,"label = \"[Reporte -MBR-] %s\";\n",nDISCO);
-                                  fprintf(LMBR,"labelloc = \"t\";\n");
-
+                                 fprintf(escribir,"label = \"[Reporte -MBR-] %s\";\n",DISCO);
+                                 fprintf(escribir,"labelloc = \"t\";\n");
                                   //tabla de primera parte del mbr con datos primarios
 
-                                  fprintf(LMBR,"\"Record\" [label = <<table border = \"4\" cellspacing = \"1\">\n");
-                                     fprintf(LMBR,"<tr><td colspan = \"2\"><b> [MBR]-[%s] </b></td></tr>\n",nDISCO);
-                                     fprintf(LMBR,"<tr><td><b>Nombre</b></td><td><b> Valor </b></td></tr>\n");
-                                     fprintf(LMBR,"<tr><td><b>mbr_size</b></td><td> %d </td></tr>\n",recobrar.mbr_tamanio);
-                                     fprintf(LMBR,"<tr><td><b>mbr_fecha_creacion</b></td><td> %s </td></tr>\n",recobrar.mbr_fecha_creacion);
-                                     fprintf(LMBR,"<tr><td><b>mbr_disk_signature</b></td><td> %d </td></tr>\n",recobrar.mbr_disk_signature);
+                                             fprintf(LMBR,"\"Record\" [label = <<table border = \"7\" cellspacing = \"1\">\n");
+                                             fprintf(LMBR,"<tr><td colspan = \"2\"><b> [MBR]-[%s] </b></td></tr>\n",DISCO);
+                                             fprintf(LMBR,"<tr><td><b>--Nombre--</b></td><td><b> Valor </b></td></tr>\n");
+                                             fprintf(LMBR,"<tr><td><b>mbr_size</b></td><td> %d </td></tr>\n",recobrar.mbr_tamanio);
+                                             fprintf(LMBR,"<tr><td><b>mbr_fecha_creacion</b></td><td> %d </td></tr>\n",recobrar.mbr_fecha_creacion);
+                                             fprintf(LMBR,"<tr><td><b>mbr_disk_signature</b></td><td> %d </td></tr>\n",recobrar.mbr_disk_signature);
+
 
                                      for(int a = 0; a < 4; a++){
                                              if(recobrar.mbr_particion_[a].part_status=='A'){
-                                                fprintf(LMBR,"<tr><td><b>part_status_%d</b></td><td>%c</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_status);
-                                                 fprintf(LMBR,"<tr><td><b>part_type_%d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_type)));
-                                                 fprintf(LMBR,"<tr><td><b>part_fit_%d</b></td><td><b>%c</b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_fit)));
-                                                fprintf(LMBR,"<tr><td><b>part_start_%d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_star);
-                                                 fprintf(LMBR,"<tr><td><b>part_size_%d</b></td><td>%d</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_size);
-                                                 fprintf(LMBR,"<tr><td><b>part_name_%d</b></td><td>%s</td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_name);
+                                                fprintf(LMBR,"<tr><td><b> part_status %d</b></td><td> %c </td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_status);
+                                                 fprintf(LMBR,"<tr><td><b> part_type %d</b></td><td><b> %c </b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_type)));
+                                                 fprintf(LMBR,"<tr><td><b> part_fit %d</b></td><td><b> %c </b></td></tr>\n",(a+1),(toupper(recobrar.mbr_particion_[a].part_fit)));
+                                                fprintf(LMBR,"<tr><td><b> part_start %d</b></td><td> %d </td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_star);
+                                                 fprintf(LMBR,"<tr><td><b> part_size %d</b></td><td> %d </td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_size);
+                                                 fprintf(LMBR,"<tr><td><b> part_name %d</b></td><td> %s </td></tr>\n",(a+1),recobrar.mbr_particion_[a].part_name);
                                              }
                                          }
-                                     fprintf(LMBR,"</table>>];\n");
+                                     fprintf(escribir,"</table>>];\n");
 
+                                     fprintf(escribir,"}");
+                                     fflush(escribir);
+                                     fclose(LMBR);
+                                     fclose(escribir);
 
+                                         //generando desde consola
 
-
+                                         char CONSOLA[600];
+                                         system("dot -Tpng /home/javier/Escritorio/Reportes.dot -o /home/javier/Escritorio/Reportes.png");
+                                              strcpy(CONSOLA,"");strcat(CONSOLA,"viewnior \""); strcat(CONSOLA,"/home/javier/Escritorio/Reportes.png");
+                                              strcat(CONSOLA,"\"&"); system(CONSOLA);
 
 
                      }//FIN DEL REP IFFFF
 
-                     if (strcasecmp((*(Palabra2 + z)), "exec")==0){
 
-
-
-                     }
 
             }      //FOOOOOOOOOOOOOOOOOOOR PRINCIPAL
             }  //if palabraaaa2
@@ -1264,11 +1329,10 @@ ExtendedBootRecord EBR;
           //pp=2;
           pp=0;
      } // del whileeee de letas
-    } // TERMINAR EL IFFF
+    }else {printf("Archivo de entrada no existe..........:( \n");} // TERMINAR EL IFFF
 }//ARCHIVO LEIDOOOOOO
    }
  printf("\n TERMINA LEÍDA DEL ARCHIVO.... ADIOOOOOOOOOOOOOOOOOOOOOS.....\n");
 
     return 0;
 }
-
